@@ -70,25 +70,25 @@ class TestWriteToMarkdown(unittest.TestCase):
         with open("issue_metrics.md", "r", encoding="utf-8") as file:
             content = file.read()
         expected_content = (
-            "# Issue Metrics\n\n"
-            "| Metric | Value |\n"
-            "| --- | ---: |\n"
-            "| Average time to first response | 2 days, 0:00:00 |\n"
-            "| Average time to close | 3 days, 0:00:00 |\n"
-            "| Average time to answer | 4 days, 0:00:00 |\n"
-            "| Average time spent in bug | 1 day, 12:00:00 |\n"
-            "| Number of items that remain open | 2 |\n"
-            "| Number of items closed | 1 |\n"
-            "| Total number of items created | 2 |\n\n"
+            "# Issue Metrics"
+            "| Metric | Value |"
+            "| --- | ---: |"
+            "| Average time to first response | 2 days, 0:00:00 |"
+            "| Average time to close | 3 days, 0:00:00 |"
+            "| Average time to answer | 4 days, 0:00:00 |"
+            "| Average time spent in bug | 1 day, 12:00:00 |"
+            "| Number of items that remain open | 2 |"
+            "| Number of items closed | 1 |"
+            "| Total number of items created | 2 |"
             "| Title | URL | Time to first response | Time to close |"
-            " Time to answer | Time spent in bug |\n"
-            "| --- | --- | --- | --- | --- | --- |\n"
+            " Time to answer | Time spent in bug |"
+            "| --- | --- | --- | --- | --- | --- |"
             "| Issue 1 | https://github.com/user/repo/issues/1 | 1 day, 0:00:00 | "
-            "2 days, 0:00:00 | 3 days, 0:00:00 | 1 day, 0:00:00 |\n"
+            "2 days, 0:00:00 | 3 days, 0:00:00 | 1 day, 0:00:00 |"
             "| Issue 2 | https://github.com/user/repo/issues/2 | 3 days, 0:00:00 | "
-            "4 days, 0:00:00 | 5 days, 0:00:00 | 2 days, 0:00:00 |\n\n"
-            "_This report was generated with the [Issue Metrics Action](https://github.com/github/issue-metrics)_\n"
-            "Search query used to find these items: `is:issue is:open label:bug`\n"
+            "4 days, 0:00:00 | 5 days, 0:00:00 | 2 days, 0:00:00 |"
+            "_This report was generated with the [Issue Metrics Action](https://github.com/github/issue-metrics)_"
+            "Search query used to find these items: `is:issue is:open label:bug`"
         )
         self.assertEqual(content, expected_content)
         os.remove("issue_metrics.md")
@@ -144,24 +144,24 @@ class TestWriteToMarkdown(unittest.TestCase):
         with open("issue_metrics.md", "r", encoding="utf-8") as file:
             content = file.read()
         expected_content = (
-            "# Issue Metrics\n\n"
-            "| Metric | Value |\n"
-            "| --- | ---: |\n"
-            "| Average time to first response | 2 days, 0:00:00 |\n"
-            "| Average time to close | 3 days, 0:00:00 |\n"
-            "| Average time to answer | 4 days, 0:00:00 |\n"
-            "| Average time spent in bug | 1 day, 12:00:00 |\n"
-            "| Number of items that remain open | 2 |\n"
-            "| Number of items closed | 1 |\n"
-            "| Total number of items created | 2 |\n\n"
+            "# Issue Metrics"
+            "| Metric | Value |"
+            "| --- | ---: |"
+            "| Average time to first response | 2 days, 0:00:00 |"
+            "| Average time to close | 3 days, 0:00:00 |"
+            "| Average time to answer | 4 days, 0:00:00 |"
+            "| Average time spent in bug | 1 day, 12:00:00 |"
+            "| Number of items that remain open | 2 |"
+            "| Number of items closed | 1 |"
+            "| Total number of items created | 2 |"
             "| Title | URL | Time to first response | Time to close |"
-            " Time to answer | Time spent in bug |\n"
-            "| --- | --- | --- | --- | --- | --- |\n"
+            " Time to answer | Time spent in bug |"
+            "| --- | --- | --- | --- | --- | --- |"
             "| Issue 1 | https://github.com/user/repo/issues/1 | 1 day, 0:00:00 | "
-            "2 days, 0:00:00 | 3 days, 0:00:00 | 1 day, 0:00:00 |\n"
+            "2 days, 0:00:00 | 3 days, 0:00:00 | 1 day, 0:00:00 |"
             "| feat&#124; Issue 2 | https://github.com/user/repo/issues/2 | 3 days, 0:00:00 | "
-            "4 days, 0:00:00 | 5 days, 0:00:00 | 2 days, 0:00:00 |\n\n"
-            "_This report was generated with the [Issue Metrics Action](https://github.com/github/issue-metrics)_\n"
+            "4 days, 0:00:00 | 5 days, 0:00:00 | 2 days, 0:00:00 |"
+            "_This report was generated with the [Issue Metrics Action](https://github.com/github/issue-metrics)_"
         )
         self.assertEqual(content, expected_content)
         os.remove("issue_metrics.md")
@@ -173,7 +173,7 @@ class TestWriteToMarkdown(unittest.TestCase):
             write_to_markdown(None, None, None, None, None, None, None)
 
         # Check that the file was written correctly
-        expected_output = "no issues found for the given search criteria\n\n"
+        expected_output = "no issues found for the given search criteria"
         mock_open_file.assert_called_once_with(
             "issue_metrics.md", "w", encoding="utf-8"
         )
@@ -252,18 +252,18 @@ class TestWriteToMarkdownWithEnv(unittest.TestCase):
         with open("issue_metrics.md", "r", encoding="utf-8") as file:
             content = file.read()
         expected_content = (
-            "# Issue Metrics\n\n"
-            "| Metric | Value |\n"
-            "| --- | ---: |\n"
-            "| Number of items that remain open | 2 |\n"
-            "| Number of items closed | 1 |\n"
-            "| Total number of items created | 2 |\n\n"
-            "| Title | URL |\n"
-            "| --- | --- |\n"
-            "| Issue 1 | https://github.com/user/repo/issues/1 |\n"
-            "| Issue 2 | https://github.com/user/repo/issues/2 |\n\n"
-            "_This report was generated with the [Issue Metrics Action](https://github.com/github/issue-metrics)_\n"
-            "Search query used to find these items: `repo:user/repo is:issue`\n"
+            "# Issue Metrics"
+            "| Metric | Value |"
+            "| --- | ---: |"
+            "| Number of items that remain open | 2 |"
+            "| Number of items closed | 1 |"
+            "| Total number of items created | 2 |"
+            "| Title | URL |"
+            "| --- | --- |"
+            "| Issue 1 | https://github.com/user/repo/issues/1 |"
+            "| Issue 2 | https://github.com/user/repo/issues/2 |"
+            "_This report was generated with the [Issue Metrics Action](https://github.com/github/issue-metrics)_"
+            "Search query used to find these items: `repo:user/repo is:issue`"
         )
         self.assertEqual(content, expected_content)
         os.remove("issue_metrics.md")

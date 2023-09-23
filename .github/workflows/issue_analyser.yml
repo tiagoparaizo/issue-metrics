@@ -1,0 +1,53 @@
+---
+name: Docker Image CI
+
+permissions: write-all
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get dates for last month
+      shell: bash
+      run: |
+        # Calculate the first day of the previous month
+        first_day=$(date -d "last month" +%Y-%m-01)
+
+        # Calculate the last day of the previous month
+        last_day=$(date +%Y-%m-%d)
+
+        #Set an environment variable with the date range
+        echo "$first_day..$last_day"
+        echo "last_month=$first_day..$last_day" >> "$GITHUB_ENV"
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'  
+    - name: Install Dependencies
+      run: pip install -r requirements.txt
+      shell: bash
+    - name: Pass Inputs to Shell
+      run: |
+              echo 'SEARCH_QUERY=repo:tiagoparaizo/issue-metrics is:issue created:${{ env.last_month }} -reason:"not planned"' >> $GITHUB_ENV
+              echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+      shell: bash
+    - name: Fetch the number's square
+      id: get-square
+      run: python issue_metrics.py
+      shell: bash
+
+#    - name: Create issue
+#      uses: peter-evans/create-issue-from-file@v4
+#      with:
+#        title: EVENTO ${{ env.last_month }}
+#        token: ${{ secrets.GITHUB_TOKEN }}
+#        content-filepath: ./issue_metrics.md

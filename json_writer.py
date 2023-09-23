@@ -100,9 +100,11 @@ def write_to_json(
             {
                 "title": issue.title,
                 "html_url": issue.html_url,
+                "created_at": issue.created_at,
+                "closed_at": issue.closed_at,
                 "time_to_first_response": str(issue.time_to_first_response),
-                "time_to_close": str(issue.time_to_close),
                 "time_to_answer": str(issue.time_to_answer),
+                "time_to_close": str(issue.time_to_close),
                 "label_metrics": formatted_label_metrics,
             }
         )

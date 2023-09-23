@@ -26,6 +26,7 @@ from os.path import dirname, join
 import sys
 from typing import List, Union
 
+
 import github3
 from dotenv import load_dotenv
 
@@ -176,7 +177,12 @@ def get_per_issue_metrics(
                 None,
                 None,
                 None,
+                None,
+                None,
             )
+            issue_with_metrics.created_at = issue["createdAt"]
+            if issue["closedAt"]:
+                issue_with_metrics.closed_at = issue["closedAt"]
             issue_with_metrics.time_to_first_response = measure_time_to_first_response(
                 None, issue, ignore_users
             )
@@ -194,7 +200,13 @@ def get_per_issue_metrics(
                 None,
                 None,
                 None,
+                None,
+                None,
             )
+
+            issue_with_metrics.created_at = issue.created_at
+            if issue.closed_at:
+                issue_with_metrics.closed_at = issue.closed_at
 
             # Check if issue is actually a pull request
             pull_request, ready_for_review_at = None, None
@@ -243,6 +255,15 @@ def get_owner(
     return owner
 
 
+
+def run_query(query, headers): # A simple function to use requests.post to make the API call. Note the json= section.
+    request = requests.post('https://api.github.com/graphql', json={'query': query}, headers=headers)
+    if request.status_code == 200:
+        return request.json()
+    else:
+        raise Exception("Query failed to run by returning code of {}. {}".format(request.status_code, query))
+
+
 def main():
     """Run the issue-metrics script.
 
@@ -270,6 +291,8 @@ def main():
     search_query = env_vars[0]
     token = env_vars[1]
     ignore_users = env_vars[2]
+
+    headers = {"Authorization": f"Bearer {token}"}
 
     # Get the repository owner and name from the search query
     owner = get_owner(search_query)
@@ -352,5 +375,7 @@ def main():
     )
 
 
+
 if __name__ == "__main__":
     main()
+           

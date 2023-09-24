@@ -71,7 +71,9 @@ def get_fields_values(owner, repository, number, project_fields):
     )
 
     project_fields = execute_query(query, os.getenv("GH_TOKEN"))
-    project_fields_data = project_fields["data"]["repository"]["issue"]["project_fields"]["nodes"]
+    project_fields_data = project_fields.get("data",{}) \
+                        .get("repository",{}).get("issue",{}) \
+                        .get("project_fields",{}).get("nodes", [])
     if len(project_fields_data) > 0:
         project_fields_data = project_fields_data[0]
         for key, value in project_fields_data.items():

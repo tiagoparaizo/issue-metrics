@@ -42,7 +42,7 @@ jobs:
       shell: bash
     - name: Fetch the number's square
       id: get-square
-      run: python issue_metrics.py
+      run: python src/issue_metrics.py
       shell: bash
 
 #    - name: Create issue

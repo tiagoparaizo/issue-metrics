@@ -39,6 +39,7 @@ jobs:
       run: |
               echo 'SEARCH_QUERY=repo:tiagoparaizo/issue-metrics is:issue created:${{ env.last_month }} -reason:"not planned"' >> $GITHUB_ENV
               echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+              echo "PROJECT_FIELDS=Peso:Number,Status:SingleSelect,Campo Texto:Text,Sprint:Iteration" >> $GITHUB_ENV
       shell: bash
     - name: Fetch the number's square
       id: get-square

@@ -23,6 +23,9 @@ class IssueWithMetrics:
 
     def __init__(
         self,
+        user,
+        repository,
+        number,
         title,
         html_url,
         created_at,
@@ -31,7 +34,11 @@ class IssueWithMetrics:
         time_to_close=None,
         time_to_answer=None,
         labels_metrics=None,
+        project_fields=None
     ):
+        self.repository = repository
+        self.user = user
+        self.number = number
         self.title = title
         self.html_url = html_url
         self.created_at = created_at
@@ -40,3 +47,4 @@ class IssueWithMetrics:
         self.time_to_close = time_to_close
         self.time_to_answer = time_to_answer
         self.label_metrics = labels_metrics
+        self.project_fields = project_fields

@@ -4,13 +4,14 @@ from typing import List
 
 import github3
 import pytz
+import json
 
 from classes import IssueWithMetrics
 
 
 def get_label_events(
     issue: github3.issues.Issue, labels: List[str]  # type: ignore
-) -> List[github3.issues.event]:  # type: ignore
+): 
     """
     Get the label events for a given issue if the label is of interest.
 
@@ -57,33 +58,46 @@ def get_label_metrics(issue: github3.issues.Issue, labels: List[str]) -> dict:
         if event.event == "labeled":
             labeled[event.label["name"]] = True
             if event.label["name"] in labels:
+                try:
+                    issue_created_at = datetime.fromisoformat(issue.created_at).replace(tzinfo=None)
+                except:
+                    issue_created_at = datetime.strptime(issue.created_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=None)
+
                 if label_metrics[event.label["name"]] is None:
                     label_metrics[event.label["name"]] = timedelta(0)
                 label_metrics[
                     event.label["name"]
-                ] -= event.created_at - datetime.fromisoformat(issue.created_at)
+                ] -= event.created_at.replace(tzinfo=None) - issue_created_at
         elif event.event == "unlabeled":
             unlabeled[event.label["name"]] = True
             if event.label["name"] in labels:
+                try:
+                    issue_created_at = datetime.fromisoformat(issue.created_at).replace(tzinfo=None)
+                except:
+                    issue_created_at = datetime.strptime(issue.created_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=None)
+
                 if label_metrics[event.label["name"]] is None:
                     label_metrics[event.label["name"]] = timedelta(0)
                 label_metrics[
                     event.label["name"]
-                ] += event.created_at - datetime.fromisoformat(issue.created_at)
+                ] += event.created_at.replace(tzinfo=None) - issue_created_at
 
     for label in labels:
         # if the label is still on there, add the time from the last event to now
         if label in labeled and label not in unlabeled:
             # if the issue is closed, add the time from the issue creation to the closed_at time
             if issue.state == "closed":
-                label_metrics[label] += datetime.fromisoformat(
-                    issue.closed_at
-                ) - datetime.fromisoformat(issue.created_at)
+                try:
+                    issue_created_at = datetime.fromisoformat(issue.created_at).replace(tzinfo=None)
+                    issue_closed_at = datetime.fromisoformat(issue.closed_at).replace(tzinfo=None)
+                except:
+                    issue_created_at = datetime.strptime(issue.created_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=None)
+                    issue_closed_at = datetime.strptime(issue.closed_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=None)
+
+                label_metrics[label] += issue_closed_at - issue_created_at
             else:
                 # if the issue is open, add the time from the issue creation to now
-                label_metrics[label] += datetime.now(pytz.utc) - datetime.fromisoformat(
-                    issue.created_at
-                )
+                label_metrics[label] += datetime.now(pytz.utc).replace(tzinfo=None) - issue_created_at
 
     return label_metrics
 
@@ -91,7 +105,7 @@ def get_label_metrics(issue: github3.issues.Issue, labels: List[str]) -> dict:
 def get_average_time_in_labels(
     issues_with_metrics: List[IssueWithMetrics],
     labels: List[str],
-) -> dict[str, timedelta]:
+):
     """Calculate the average time spent in each label."""
     average_time_in_labels = {}
     number_of_issues_in_labels = {}

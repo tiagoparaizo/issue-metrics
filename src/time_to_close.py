@@ -40,14 +40,23 @@ def measure_time_to_close(
     if issue:
         if issue.state != "closed":
             return None
-        closed_at = datetime.fromisoformat(issue.closed_at)
-        created_at = datetime.fromisoformat(issue.created_at)
+        try:
+            closed_at = datetime.fromisoformat(issue.closed_at)
+            created_at = datetime.fromisoformat(issue.created_at)
+        except:
+            closed_at = datetime.strptime(issue.closed_at, "%Y-%m-%dT%H:%M:%SZ")
+            created_at = datetime.strptime(issue.created_at, "%Y-%m-%dT%H:%M:%SZ")
 
     if discussion:
         if discussion["closedAt"] is None:
             return None
-        closed_at = datetime.fromisoformat(discussion["closedAt"])
-        created_at = datetime.fromisoformat(discussion["createdAt"])
+        try:
+            closed_at = datetime.fromisoformat(discussion["closedAt"])
+            created_at = datetime.fromisoformat(discussion["createdAt"])
+        except:
+            closed_at = datetime.strptime(discussion["closedAt"], "%Y-%m-%dT%H:%M:%SZ")
+            created_at =datetime.strptime(discussion["createdAt"], "%Y-%m-%dT%H:%M:%SZ")
+        
 
     if closed_at and created_at:
         return closed_at - created_at

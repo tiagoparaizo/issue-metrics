@@ -28,6 +28,7 @@ from typing import List, Union
 
 
 import github3
+import json
 from dotenv import load_dotenv
 
 from classes import IssueWithMetrics
@@ -43,9 +44,10 @@ from time_to_first_response import (
     get_average_time_to_first_response,
     measure_time_to_first_response,
 )
+from project_fields import get_fields_values
 
 
-def get_env_vars() -> tuple[str, str, List[str]]:
+def get_env_vars():
     """
     Get the environment variables for use in the script.
 
@@ -139,12 +141,20 @@ def auth_to_github() -> github3.GitHub:
     return github_connection  # type: ignore
 
 
+def parse_repository_url(repository_url):
+    repository_url = repository_url.split('/')
+    owner = repository_url[-2]
+    repository = repository_url[-1]
+    return owner, repository
+
+
 def get_per_issue_metrics(
     issues: Union[List[dict], List[github3.search.IssueSearchResult]],  # type: ignore
     discussions: bool = False,
     labels: Union[List[str], None] = None,
     ignore_users: List[str] = None,
-) -> tuple[List, int, int]:
+    project_fields = None,
+):
     """
     Calculate the metrics for each issue/pr/discussion in a list provided.
 
@@ -170,7 +180,11 @@ def get_per_issue_metrics(
 
     for issue in issues:
         if discussions:
+            owner, repository = parse_repository_url(issue["repositoryUrl"])
             issue_with_metrics = IssueWithMetrics(
+                owner,
+                repository,
+                issue["number"],
                 issue["title"],
                 issue["url"],
                 None,
@@ -193,9 +207,13 @@ def get_per_issue_metrics(
             else:
                 num_issues_open += 1
         else:
+            owner, repository = parse_repository_url(issue.repository_url)
             issue_with_metrics = IssueWithMetrics(
+                owner,
+                repository,
+                issue.number,
                 issue.title,  # type: ignore
-                issue.html_url,  # type: ignore
+                issue.html_url,  # type: ignore               
                 None,
                 None,
                 None,
@@ -227,6 +245,9 @@ def get_per_issue_metrics(
                 num_issues_closed += 1
             elif issue.state == "open":  # type: ignore
                 num_issues_open += 1
+        
+            issue_with_metrics.project_fields = get_fields_values(owner, repository, issue.number, project_fields)
+
         issues_with_metrics.append(issue_with_metrics)
 
     return issues_with_metrics, num_issues_open, num_issues_closed
@@ -292,8 +313,6 @@ def main():
     token = env_vars[1]
     ignore_users = env_vars[2]
 
-    headers = {"Authorization": f"Bearer {token}"}
-
     # Get the repository owner and name from the search query
     owner = get_owner(search_query)
 
@@ -310,6 +329,12 @@ def main():
         labels = labels.split(",")
     else:
         labels = []
+
+    project_fields = os.environ.get("PROJECT_FIELDS")
+    if project_fields:
+        project_fields = [dict(zip(["name", "type"], x.split(":"))) for x in project_fields.split(",")]
+    else:
+        project_fields = []
 
     # Search for issues
     # If type:discussions is in the search_query, search for discussions using get_discussions()
@@ -336,6 +361,7 @@ def main():
         discussions="type:discussions" in search_query,
         labels=labels,
         ignore_users=ignore_users,
+        project_fields=project_fields
     )
 
     average_time_to_first_response = get_average_time_to_first_response(
@@ -372,6 +398,7 @@ def main():
         num_issues_closed,
         labels,
         search_query,
+        project_fields
     )
 
 

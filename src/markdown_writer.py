@@ -31,7 +31,7 @@ from typing import List, Union
 from classes import IssueWithMetrics
 
 
-def get_non_hidden_columns(labels) -> List[str]:
+def get_non_hidden_columns(labels, project_fields) -> List[str]:
     """
     Get a list of the columns that are not hidden.
 
@@ -42,11 +42,20 @@ def get_non_hidden_columns(labels) -> List[str]:
         List[str]: A list of the columns that are not hidden.
 
     """
-    columns = ["Title", "URL", "Created At", "Closed At"]
+    columns = ["Title", "URL"]
     # Find the number of columns and which are to be hidden
+
     hide_time_to_first_response = os.getenv("HIDE_TIME_TO_FIRST_RESPONSE")
     if not hide_time_to_first_response:
         columns.append("Time to first response")
+    
+    hide_created_at = os.getenv("HIDE_CREATED_AT")
+    if not hide_time_to_first_response:
+        columns.append("Created At")
+
+    hide_closed_at= os.getenv("HIDE_CLOSED_AT")
+    if not hide_time_to_first_response:
+        columns.append("Closed At")
 
     hide_time_to_close = os.getenv("HIDE_TIME_TO_CLOSE")
     if not hide_time_to_close:
@@ -60,6 +69,10 @@ def get_non_hidden_columns(labels) -> List[str]:
     if not hide_label_metrics and labels:
         for label in labels:
             columns.append(f"Time spent in {label}")
+    
+    if project_fields:
+        for project_field in project_fields:
+            columns.append(f"{project_field['name']}")
 
     return columns
 
@@ -74,6 +87,7 @@ def write_to_markdown(
     num_issues_closed: Union[int, None],
     labels=None,
     search_query=None,
+    project_fields=None
 ) -> None:
     """Write the issues with metrics to a markdown file.
 
@@ -95,7 +109,7 @@ def write_to_markdown(
         None.
 
     """
-    columns = get_non_hidden_columns(labels)
+    columns = get_non_hidden_columns(labels, project_fields)
 
     # If all the metrics are None, then there are no issues
     if not issues_with_metrics or len(issues_with_metrics) == 0:
@@ -108,18 +122,20 @@ def write_to_markdown(
         file.write("# Issue Metrics\n\n")
 
         # Write first table with overall metrics
-        write_overall_metrics_table(
-            issues_with_metrics,
-            average_time_to_first_response,
-            average_time_to_close,
-            average_time_to_answer,
-            average_time_in_labels,
-            num_issues_opened,
-            num_issues_closed,
-            labels,
-            columns,
-            file,
-        )
+        hide_overral= os.getenv("HIDE_OVERRAL")
+        if not hide_overral:
+            write_overall_metrics_table(
+                issues_with_metrics,
+                average_time_to_first_response,
+                average_time_to_close,
+                average_time_to_answer,
+                average_time_in_labels,
+                num_issues_opened,
+                num_issues_closed,
+                labels,
+                columns,
+                file,
+            )
 
         # Write second table with individual issue/pr/discussion metrics
         # First write the header
@@ -141,7 +157,11 @@ def write_to_markdown(
             # Replace any whitespace
             issue.title = issue.title.strip()
 
-            file.write(f"| " f"{issue.title} | " f"{issue.html_url} |" f"{issue.opened_at} |" f"{issue.closed_at} |")
+            file.write(f"| " f"{issue.title} | " f"{issue.html_url} |")
+            if "Created At" in columns:
+                file.write(f" {issue.created_at} |")
+            if "Closed At" in columns:
+                file.write(f" {issue.closed_at} |")
             if "Time to first response" in columns:
                 file.write(f" {issue.time_to_first_response} |")
             if "Time to close" in columns:
@@ -152,6 +172,11 @@ def write_to_markdown(
                 for label in labels:
                     if f"Time spent in {label}" in columns:
                         file.write(f" {issue.label_metrics[label]} |")
+            if project_fields:
+                for project_field in project_fields:
+                    project_field_name = project_field['name'].replace(' ','_')
+                    file.write(f" {issue.project_fields.get(project_field_name, 'None')} |")
+
             file.write("\n")
         file.write(
             "\n_This report was generated with the [Issue Metrics Action](https://github.com/github/issue-metrics)_\n"

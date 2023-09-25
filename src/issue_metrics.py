@@ -126,7 +126,8 @@ def auth_to_github() -> github3.GitHub:
     Returns:
         github3.GitHub: A github api connection.
     """
-    if token == os.getenv("GH_TOKEN"):
+    token = os.getenv("GH_TOKEN") 
+    if token:
         if not os.getenv("GITHUB_SERVER_URL"):
             github_connection = github3.login(token=token)
         elif os.getenv("GITHUB_SERVER_URL") == "https://github.com":
@@ -309,6 +310,7 @@ def main():
 
     # Get the environment variables for use in the script
     env_vars = get_env_vars()
+
     search_query = env_vars[0]
     token = env_vars[1]
     ignore_users = env_vars[2]

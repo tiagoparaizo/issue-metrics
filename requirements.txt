@@ -1,6 +1,6 @@
 github3.py==4.0.1
 python-dotenv
 pytz
-Requests
+Requests==2.31.0
 pytest
 pytest-cov

@@ -59,7 +59,7 @@ def measure_time_to_first_response(
         for comment in comments:
             if ignore_comment(issue.issue.user, comment.user, ignore_users, comment.created_at, ready_for_review_at):
                 continue
-            first_comment_time = comment.created_at
+            first_comment_time = comment.created_at.replace(tzinfo=None)
             break
 
         # Check if the issue is actually a pull request
@@ -70,7 +70,7 @@ def measure_time_to_first_response(
                 if ignore_comment(issue.issue.user, review_comment.user, ignore_users,
                                   review_comment.submitted_at, ready_for_review_at):
                     continue
-                first_review_comment_time = review_comment.submitted_at
+                first_review_comment_time = review_comment.submitted_at.replace(tzinfo=None)
                 break
 
         # Figure out the earliest response timestamp
@@ -88,19 +88,19 @@ def measure_time_to_first_response(
             issue_time = ready_for_review_at
         else:
             try:
-                issue_time = datetime.fromisoformat(issue.created_at)
+                issue_time = datetime.fromisoformat(issue.created_at).replace(tzinfo=None)
             except:
-                issue_time = datetime.strptime(issue.created_at, "%Y-%m-%dT%H:%M:%SZ")
+                issue_time = datetime.strptime(issue.created_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=None)
 
     if discussion and len(discussion["comments"]["nodes"]) > 0:
         try:
-            earliest_response = datetime.fromisoformat(discussion["comments"]["nodes"][0]["createdAt"])
+            earliest_response = datetime.fromisoformat(discussion["comments"]["nodes"][0]["createdAt"]).replace(tzinfo=None)
         except:
-            earliest_response = datetime.strptime(discussion["comments"]["nodes"][0]["createdAt"], "%Y-%m-%dT%H:%M:%SZ")
+            earliest_response = datetime.strptime(discussion["comments"]["nodes"][0]["createdAt"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=None)
         try:
-            issue_time = datetime.fromisoformat(issue["createdAt"])
+            issue_time = datetime.fromisoformat(issue["createdAt"]).replace(tzinfo=None)
         except:
-            issue_time = datetime.strptime(issue["createdAt"], "%Y-%m-%dT%H:%M:%SZ")
+            issue_time = datetime.strptime(issue["createdAt"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=None)
 
     # Calculate the time between the issue and the first comment
     if earliest_response and issue_time:

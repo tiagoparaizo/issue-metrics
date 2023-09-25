@@ -87,13 +87,20 @@ def measure_time_to_first_response(
         if ready_for_review_at:
             issue_time = ready_for_review_at
         else:
-            issue_time = datetime.fromisoformat(issue.created_at)  # type: ignore
+            try:
+                issue_time = datetime.fromisoformat(issue.created_at)
+            except:
+                issue_time = datetime.strptime(issue.created_at, "%Y-%m-%dT%H:%M:%SZ")
 
     if discussion and len(discussion["comments"]["nodes"]) > 0:
-        earliest_response = datetime.fromisoformat(
-            discussion["comments"]["nodes"][0]["createdAt"]
-        )
-        issue_time = datetime.fromisoformat(discussion["createdAt"])
+        try:
+            earliest_response = datetime.fromisoformat(discussion["comments"]["nodes"][0]["createdAt"])
+        except:
+            earliest_response = datetime.strptime(discussion["comments"]["nodes"][0]["createdAt"], "%Y-%m-%dT%H:%M:%SZ")
+        try:
+            issue_time = datetime.fromisoformat(issue["createdAt"])
+        except:
+            issue_time = datetime.strptime(issue["createdAt"], "%Y-%m-%dT%H:%M:%SZ")
 
     # Calculate the time between the issue and the first comment
     if earliest_response and issue_time:
